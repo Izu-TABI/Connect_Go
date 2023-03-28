@@ -3,12 +3,17 @@ package bot
 import (
   "fmt"
   "Connect2_Go/config"
+  "Connect2_Go/commands"
 
   "github.com/bwmarrin/discordgo"
 )
 
 var BotId string
 var goBot *discordgo.Session
+var (
+	commandList     = commands.Commands
+	commandHandlers = commands.CommandHandlers
+)
 
 
 func Start() {
@@ -42,6 +47,7 @@ func Start() {
 }
 
 func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
+
   if m.Author.ID == BotId {
     return
   } else {
