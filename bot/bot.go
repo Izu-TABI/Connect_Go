@@ -44,6 +44,8 @@ func Start() {
 func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
   if m.Author.ID == BotId {
     return
+  } else {
+    fmt.Println(m.Content)
   }
 
   if m.Content == "ping" {
