@@ -1,6 +1,8 @@
 package commands
 
 import (
+  "fmt"
+
   "github.com/bwmarrin/discordgo"
 )
 var s *discordgo.Session
@@ -12,37 +14,38 @@ var (
 
    Commands = []*discordgo.ApplicationCommand {
     {
-      Name: "basic-command",
-      Description: "Basic command",
-    },
-    {
-      Name:                     "permission-overview",
-			Description:              "Command for demonstration of default command permissions",
-			DefaultMemberPermissions: &defaultMemberPermissions,
-			DMPermission:             &dmPermission,
-    },
-
+      Name: "test",
+      Description: "test",
+      Options: []*discordgo.ApplicationCommandOption{
+              {
+                Type:        discordgo.ApplicationCommandOptionChannel,
+                Name:        "channel-option",
+                Description: "Channel option",
+                ChannelTypes: []discordgo.ChannelType{
+                  discordgo.ChannelTypeGuildVoice,
+                },
+                Required: true,
+              },
+            },
+          },
   }
 	CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-		"hi": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Content: "hi",
-				},
-			})
-		},
+    "test": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+
+      s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+        Type: discordgo.InteractionResponseChannelMessageWithSource,
+        Data: &discordgo.InteractionResponseData{
+          Content: "Hey there! Congratulations, you just executed your first slash command",
+        },
+      })
+     fmt.Println(i.ApplicationCommandData().Options[0])
+ 
+
+    },
 	}
                                     
 )
 
-// Add commands
-func SetCommand() { 
-  	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		if h, ok := CommandHandlers[i.ApplicationCommandData().Name]; ok {
-			h(s, i)
-		}
-	})
-}
+  
 
 

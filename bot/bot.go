@@ -2,6 +2,9 @@ package bot
 
 import (
   "fmt"
+  "log"
+
+
   "Connect2_Go/config"
   "Connect2_Go/commands"
 
@@ -10,11 +13,6 @@ import (
 
 var BotId string
 var goBot *discordgo.Session
-var (
-	commandList     = commands.Commands
-	commandHandlers = commands.CommandHandlers
-)
-
 
 func Start() {
   goBot, err := discordgo.New("Bot " + config.Token)
@@ -37,6 +35,9 @@ func Start() {
 
 
   goBot.AddHandler(messageHandler)
+  goBot.AddHandler(commandHandler) 
+
+  
 
   err = goBot.Open()
   if err != nil {
@@ -44,6 +45,18 @@ func Start() {
   }
 
   fmt.Println("Bot is running!")
+
+  // add command
+	log.Println("Adding commands...")
+	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands.Commands))
+	for i, v := range commands.Commands {
+		cmd, err := goBot.ApplicationCommandCreate(goBot.State.User.ID, config.GuildId, v)
+		if err != nil {
+			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
+		}
+		registeredCommands[i] = cmd
+	}
+	log.Println("Successfully created commands")
 }
 
 func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -57,4 +70,10 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
   if m.Content == "ping" {
     _, _ = s.ChannelMessageSend(m.ChannelID, "pong")
   }
+}
+
+func commandHandler(sess *discordgo.Session, interactionCreate *discordgo.InteractionCreate) {
+		if handler, ok := commands.CommandHandlers[interactionCreate.ApplicationCommandData().Name]; ok {
+			handler(sess, interactionCreate)
+		}
 }
