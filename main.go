@@ -1,12 +1,14 @@
 package main
 
 import (
-  "fmt"
-  "Connect2_Go/config"
-  "Connect2_Go/bot"
+	"Connect2_Go/bot"
+	"Connect2_Go/config"
+	"fmt"
+
 )
 
 func main() {
+
   err := config.ReadConfig()
 
   if err != nil {

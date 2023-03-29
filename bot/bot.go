@@ -1,15 +1,18 @@
 package bot
 
 import (
-  "fmt"
-  "Connect2_Go/config"
+	"fmt"
+	"log"
 
-  "github.com/bwmarrin/discordgo"
+	"Connect2_Go/commands"
+	"Connect2_Go/config"
+	"Connect2_Go/voice"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 var BotId string
 var goBot *discordgo.Session
-
 
 func Start() {
   goBot, err := discordgo.New("Bot " + config.Token)
@@ -32,6 +35,9 @@ func Start() {
 
 
   goBot.AddHandler(messageHandler)
+  goBot.AddHandler(commandHandler) 
+
+  
 
   err = goBot.Open()
   if err != nil {
@@ -39,9 +45,23 @@ func Start() {
   }
 
   fmt.Println("Bot is running!")
+
+  // add command
+	log.Println("Adding commands...")
+	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands.Commands))
+	for i, v := range commands.Commands {
+		cmd, err := goBot.ApplicationCommandCreate(goBot.State.User.ID, config.GuildId, v)
+		if err != nil {
+			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
+		}
+		registeredCommands[i] = cmd
+	}
+	log.Println("Successfully created commands")
 }
 
+
 func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
+
   if m.Author.ID == BotId {
     return
   } else {
@@ -50,5 +70,14 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
   if m.Content == "ping" {
     _, _ = s.ChannelMessageSend(m.ChannelID, "pong")
+  } else if m.Content == "/connection" {
+    voice.ConnectVoice(s, "937946561802031154") 
   }
+
+}
+
+func commandHandler(sess *discordgo.Session, interactionCreate *discordgo.InteractionCreate) {
+		if handler, ok := commands.CommandHandlers[interactionCreate.ApplicationCommandData().Name]; ok {
+			handler(sess, interactionCreate)
+		}
 }
