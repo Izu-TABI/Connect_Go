@@ -8,7 +8,9 @@ require (
 )
 
 require (
+	github.com/bwmarrin/dgvoice v0.0.0-20210225172318-caaac756e02e // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa // indirect
 	golang.org/x/sys v0.0.0-20210615035016-665e8c7367d1 // indirect
+	layeh.com/gopus v0.0.0-20210501142526-1ee02d434e32 // indirect
 )

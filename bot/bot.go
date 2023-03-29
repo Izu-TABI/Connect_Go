@@ -1,14 +1,14 @@
 package bot
 
 import (
-  "fmt"
-  "log"
+	"fmt"
+	"log"
 
+	"Connect2_Go/commands"
+	"Connect2_Go/config"
+	"Connect2_Go/voice"
 
-  "Connect2_Go/config"
-  "Connect2_Go/commands"
-
-  "github.com/bwmarrin/discordgo"
+	"github.com/bwmarrin/discordgo"
 )
 
 var BotId string
@@ -59,6 +59,7 @@ func Start() {
 	log.Println("Successfully created commands")
 }
 
+
 func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
   if m.Author.ID == BotId {
@@ -69,7 +70,10 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
   if m.Content == "ping" {
     _, _ = s.ChannelMessageSend(m.ChannelID, "pong")
+  } else if m.Content == "/connection" {
+    voice.ConnectVoice(s, "937946561802031154") 
   }
+
 }
 
 func commandHandler(sess *discordgo.Session, interactionCreate *discordgo.InteractionCreate) {
