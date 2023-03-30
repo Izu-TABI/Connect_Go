@@ -3,6 +3,9 @@ package bot
 import (
 	"fmt"
 	"log"
+	"os"
+  "os/signal"
+  "syscall"
 
 	"Connect2_Go/commands"
 	"Connect2_Go/config"
@@ -36,18 +39,14 @@ func Start() {
 
   goBot.AddHandler(messageHandler)
   goBot.AddHandler(commandHandler) 
-
-  
+ 
 
   err = goBot.Open()
   if err != nil {
     fmt.Println(err.Error())
   }
 
-  fmt.Println("Bot is running!")
-
   // add command
-	log.Println("Adding commands...")
 	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands.Commands))
 	for i, v := range commands.Commands {
 		cmd, err := goBot.ApplicationCommandCreate(goBot.State.User.ID, config.GuildId, v)
@@ -56,7 +55,17 @@ func Start() {
 		}
 		registeredCommands[i] = cmd
 	}
-	log.Println("Successfully created commands")
+	log.Println("Successfully created commands!")
+
+    // シグナルを待機
+  fmt.Println("Bot is running! Press CTRL-C to exit.")
+  sc := make(chan os.Signal, 1)
+  signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+  <-sc
+
+  // Discordから切断する
+  goBot.Close()
+
 }
 
 
