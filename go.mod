@@ -2,10 +2,7 @@ module Connect2_Go
 
 go 1.20
 
-require (
-	github.com/bwmarrin/discordgo v0.27.1
-	github.com/quakecodes/recv v1.0.1
-)
+require github.com/bwmarrin/discordgo v0.27.1
 
 require (
 	github.com/bwmarrin/dgvoice v0.0.0-20210225172318-caaac756e02e // indirect
