@@ -32,16 +32,18 @@ var (
   }
 	CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
     "connect": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-      
-      // Connect the voice channel.
-      voice.VoiceMain(s)
       s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
         Type: discordgo.InteractionResponseChannelMessageWithSource,
         Data: &discordgo.InteractionResponseData{
-          Content: "Successfully connected!",
+          Content: "Received command to connect.",
         },
       })
-     fmt.Println(i.ApplicationCommandData().Options[0])
+
+      // Connect the voice channel.
+      err := voice.VoiceMain(s)
+      if err != nil {
+        fmt.Println(err)
+      } 
     },
 	}
                                     
