@@ -2,7 +2,6 @@ package voice
 
 import (
 	"Connect2_Go/config"
-  "flag"
 	"fmt"
 	"io"
 	"net/http"
@@ -17,24 +16,62 @@ import (
 const url string = "https://audio2.tts.quest//v1//download//1e702eac6b70f607395488bf6e0fab47dc1a778387c0c037d84a48ae8494d78f.mp3"
 
 // connect the voice channel
-
-func AudioPlay(s *discordgo.Session) error {
-  Folder := flag.String("f", "audio", "Folder of files to play.")
-
-  	// We only really care about receiving voice state updates.
+func VoiceMain(s *discordgo.Session) error {
+  voiceChannelID := "937946561802031154"
 	s.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildVoiceStates)
 
-  fmt.Println("Start connection")
-  vc, err := s.ChannelVoiceJoin(config.GuildId, "937946561802031154",false, true)
-	//defer vc.Disconnect()
-
+  // Connect the voice channel.
+  _, err := s.ChannelVoiceJoin(config.GuildId, voiceChannelID, false, true)
   if err != nil {
     fmt.Println(err)
   } 
-  fmt.Println("Successfully and Play start")   
+
+	//defer vc.Disconnect()
+  fmt.Println("Successfully connected the voice channel.")
+
+  err = MP3FromURL(url)
+  if err != nil {
+    fmt.Println("Error at voice.MP3FromURL()", err)
+    return err
+  } 
+
+	// Start play audio 
+  err = Play(s)
+  if err != nil {
+    fmt.Println("Error at voice.Play()", err)
+    return err
+  } 
+  
+  return nil
+}
 
 
-  // HTTP GETリクエストを送信して、ファイルをダウンロードする
+// Play audio
+func Play(s *discordgo.Session) error {
+  voiceChannelID := "937946561802031154"
+  // Get the voice connection.
+  vc, err := s.ChannelVoiceJoin(config.GuildId, voiceChannelID, false, true)
+  if err != nil {
+    fmt.Println(err)
+    return err
+  } 
+
+  fmt.Println("Reading Folder: ", "audio")
+  files, err := ioutil.ReadDir("audio")
+  if err != nil {
+    fmt.Println(err)
+    return err
+  }
+  for _, f := range files {
+    fmt.Println("PlayAudioFile:", f.Name())
+
+    dgvoice.PlayAudioFile(vc, fmt.Sprintf("%s/%s", "audio", f.Name()), make(chan bool))
+  }
+  return nil
+}
+
+// Download mp3 file from URL
+func MP3FromURL(url string) error {
   res, err := http.Get(url)
 	if err != nil {
     fmt.Println(err)
@@ -55,40 +92,6 @@ func AudioPlay(s *discordgo.Session) error {
     return err
   }
 
-  // mp3ファイルの読み込み
-  file, err = os.Open("./audio/audio.mp3")
-  if err != nil {
-    fmt.Printf("Error opening mp3 file: %s", err)
-    return err
-  }
-  defer file.Close()
-
- 	// ダウンロードしたmp3ファイルを一時ファイルとして保存する
-	file, err = os.CreateTemp("", "*.mp3")
-	if err != nil {
-		panic(err)
-	}
-	defer os.Remove(file.Name())
-
-	_, err = io.Copy(file, res.Body)
-	if err != nil {
-		panic(err)
-	}
-
-
-	// Start loop and attempt to play all files in the given folder
-	fmt.Println("Reading Folder: ", *Folder)
-	files, err := ioutil.ReadDir(*Folder)
-  if err != nil {
-    fmt.Println(err)
-  }
-	for _, f := range files {
-		fmt.Println("PlayAudioFile:", f.Name())
-
-		dgvoice.PlayAudioFile(vc, fmt.Sprintf("%s/%s", *Folder, f.Name()), make(chan bool))
-	}
-
-	// Close connections
-	vc.Close()
   return nil
 }
+

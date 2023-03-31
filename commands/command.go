@@ -1,9 +1,10 @@
 package commands
 
 import (
-  "fmt"
+	"Connect2_Go/voice"
+	"fmt"
 
-  "github.com/bwmarrin/discordgo"
+	"github.com/bwmarrin/discordgo"
 )
 var s *discordgo.Session
 
@@ -14,13 +15,13 @@ var (
 
    Commands = []*discordgo.ApplicationCommand {
     {
-      Name: "test",
-      Description: "test",
+      Name: "connect",
+      Description: "Connect the voice channel.",
       Options: []*discordgo.ApplicationCommandOption{
               {
                 Type:        discordgo.ApplicationCommandOptionChannel,
                 Name:        "channel-option",
-                Description: "Channel option",
+                Description: "Channels",
                 ChannelTypes: []discordgo.ChannelType{
                   discordgo.ChannelTypeGuildVoice,
                 },
@@ -30,17 +31,17 @@ var (
           },
   }
 	CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-    "test": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-
+    "connect": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+      
+      // Connect the voice channel.
+      voice.VoiceMain(s)
       s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
         Type: discordgo.InteractionResponseChannelMessageWithSource,
         Data: &discordgo.InteractionResponseData{
-          Content: "Hey there! Congratulations, you just executed your first slash command",
+          Content: "Successfully connected!",
         },
       })
      fmt.Println(i.ApplicationCommandData().Options[0])
- 
-
     },
 	}
                                     

@@ -23,11 +23,10 @@ func Start() {
   if err != nil {
     fmt.Println(err.Error())
     return
-  }
+  } 
 
   // Making our bot a user using User function.
   u, err := goBot.User("@me")
-
   if err != nil {
     fmt.Println(err.Error())
     return
@@ -36,10 +35,8 @@ func Start() {
   // Storing our id from u to BotId
   BotId = u.ID
 
-
   goBot.AddHandler(messageHandler)
   goBot.AddHandler(commandHandler) 
- 
 
   err = goBot.Open()
   if err != nil {
@@ -57,15 +54,13 @@ func Start() {
 	}
 	log.Println("Successfully created commands!")
 
-    // シグナルを待機
+  // Waiting for signal.
   fmt.Println("Bot is running! Press CTRL-C to exit.")
   sc := make(chan os.Signal, 1)
   signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
   <-sc
 
-  // Discordから切断する
   goBot.Close()
-
 }
 
 
@@ -79,8 +74,9 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
   if m.Content == "ping" {
     _, _ = s.ChannelMessageSend(m.ChannelID, "pong")
-  } else if m.Content == "/connection" {
-    voice.AudioPlay(s)
+  } else if m.Content == "/play" {
+    fmt.Println("/play command")
+    voice.Play(s)
   }
 
 }
@@ -90,3 +86,4 @@ func commandHandler(sess *discordgo.Session, interactionCreate *discordgo.Intera
 			handler(sess, interactionCreate)
 		}
 }
+
