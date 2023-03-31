@@ -80,7 +80,7 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
   if m.Content == "ping" {
     _, _ = s.ChannelMessageSend(m.ChannelID, "pong")
   } else if m.Content == "/connection" {
-    voice.AudioPlay(s, "https://audio2.tts.quest//v1//download//1e702eac6b70f607395488bf6e0fab47dc1a778387c0c037d84a48ae8494d78f.mp3")
+    voice.AudioPlay(s)
   }
 
 }
