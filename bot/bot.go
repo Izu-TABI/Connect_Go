@@ -113,7 +113,12 @@ func voiceChannelHandler(s *discordgo.Session, vs *discordgo.VoiceStateUpdate) {
       contents += "さんが参加しました。"
     }
 
-    voice.Play(s, channelID, contents)
+    fmt.Println(voice.Playing)
+    if !voice.Playing {
+      voice.Play(s, channelID, contents)
+    } else {
+      return
+    } 
   }
 
 }

@@ -4,30 +4,28 @@ import (
 	"Connect2_Go/config"
 	"fmt"
 	"io/ioutil"
+	"time"
 
 	"github.com/bwmarrin/dgvoice"
 	"github.com/bwmarrin/discordgo"
 )
 
 var ChannelID string
+var Playing bool
+
 
 // Play audio
 func Play(s *discordgo.Session, voiceChannelID string, contents string) error {
-   
-  ChannelID = voiceChannelID
-  fmt.Println(contents)
- 
+  Playing = true
 
+  ChannelID = voiceChannelID
+ 
   // Get the voice connection.
   vc, err := s.ChannelVoiceJoin(config.GuildId, ChannelID, false, true)
   if err != nil {
     fmt.Println(err)
     return err
   } 
-
-  fmt.Println(vc.Speaking(true)) 
-
-
 
   // Get mp3 url
   url, err := voiceAPI(contents)
@@ -55,6 +53,10 @@ func Play(s *discordgo.Session, voiceChannelID string, contents string) error {
 
     dgvoice.PlayAudioFile(vc, fmt.Sprintf("%s/%s", "audio", f.Name()), make(chan bool))
   }
+
+  time.Sleep(time.Duration(1 * time.Second))
+  Playing = false
+
   return nil
 }
 

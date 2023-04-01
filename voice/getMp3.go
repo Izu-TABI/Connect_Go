@@ -16,6 +16,9 @@ func voiceAPI(contents string) (string, error) {
   apiUrl := "https://api.tts.quest/v1/voicevox/?text="+contents+"&speaker=2"
 
   resp, err := http.Get(apiUrl)
+  if resp == nil {
+    fmt.Println("responce is nil")
+  }
 	if err != nil {
 		fmt.Printf("NewRequest err=%s", err.Error())
 	}

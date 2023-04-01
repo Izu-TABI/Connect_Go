@@ -48,6 +48,7 @@ var (
       
       // channel ID of options
       option = i.ApplicationCommandData().Options[0].Value.(string)
+      voice.Playing = false
       voice.Play(s, option, "コネクト")
     },
 
