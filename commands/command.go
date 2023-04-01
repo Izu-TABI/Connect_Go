@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"Connect2_Go/config"
 	"Connect2_Go/voice"
 	"fmt"
 
@@ -28,7 +29,12 @@ var (
                 Required: true,
               },
             },
-          },
+    },
+    {
+      Name: "disconnect",
+      Description: "disconnect the voice channel.",
+    },
+
   }
 	CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
     "connect": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -45,6 +51,21 @@ var (
       if err != nil {
         fmt.Println(err)
       } 
+    },
+
+    "disconnect": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+      vc, err := s.ChannelVoiceJoin(config.GuildId, voice.VoiceChannelID, false, true)
+      vc.Disconnect()
+      if err != nil {
+        fmt.Println(err)
+      } 
+
+      s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+        Type: discordgo.InteractionResponseChannelMessageWithSource,
+        Data: &discordgo.InteractionResponseData{
+          Content: "👋 Bye!",
+        },
+      })
     },
 	}
                                     
