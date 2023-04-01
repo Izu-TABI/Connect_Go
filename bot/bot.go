@@ -37,6 +37,7 @@ func Start() {
 
   goBot.AddHandler(messageHandler)
   goBot.AddHandler(commandHandler) 
+  goBot.AddHandler(voiceChannelHandler)
 
   err = goBot.Open()
   if err != nil {
@@ -54,6 +55,7 @@ func Start() {
 	}
 	log.Println("Successfully created commands!")
 
+
   // Waiting for signal.
   fmt.Println("Bot is running! Press CTRL-C to exit.")
   sc := make(chan os.Signal, 1)
@@ -64,7 +66,9 @@ func Start() {
 }
 
 
+// Event handler
 func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
+  channelID := voice.ChannelID
 
   if m.Author.ID == BotId {
     return
@@ -76,7 +80,7 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
     _, _ = s.ChannelMessageSend(m.ChannelID, "pong")
   } else if m.Content == "/play" {
     fmt.Println("/play command")
-    voice.Play(s)
+    voice.Play(s, channelID, "play")
   }
 
 }
@@ -85,5 +89,37 @@ func commandHandler(sess *discordgo.Session, interactionCreate *discordgo.Intera
 		if handler, ok := commands.CommandHandlers[interactionCreate.ApplicationCommandData().Name]; ok {
 			handler(sess, interactionCreate)
 		}
+}
+
+func voiceChannelHandler(s *discordgo.Session, vs *discordgo.VoiceStateUpdate) {
+
+  // 無限ループを回避するため
+  if vs.UserID != BotId {
+    channelID := voice.ChannelID
+    user := vs.Member.User.Username
+    contents := user
+
+    if vs.BeforeUpdate != nil {
+
+      // left
+      if vs.ChannelID == "" {
+        contents += "さんが退出しました。"
+      } else {
+        contents += "さんが別のボイスチャンネルへ移動しました。"
+      }
+
+      // join
+    } else if vs.ChannelID != "" {
+      contents += "さんが参加しました。"
+    }
+
+    fmt.Println(voice.Playing)
+    if !voice.Playing {
+      voice.Play(s, channelID, contents)
+    } else {
+      return
+    } 
+  }
+
 }
 
