@@ -4,24 +4,26 @@ import (
 	"Connect2_Go/config"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
-	"io/ioutil"
-
 
 	"github.com/bwmarrin/dgvoice"
 	"github.com/bwmarrin/discordgo"
 )
 
 const url string = "https://audio2.tts.quest//v1//download//1e702eac6b70f607395488bf6e0fab47dc1a778387c0c037d84a48ae8494d78f.mp3"
+var VoiceChannelID string 
 
 // connect the voice channel
-func VoiceMain(s *discordgo.Session) error {
-  voiceChannelID := "937946561802031154"
+func VoiceMain(s *discordgo.Session, inputChannel *discordgo.ApplicationCommandInteractionDataOption) error {
+  VoiceChannelID = inputChannel.Value.(string)
+ 
+  
 	s.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildVoiceStates)
 
   // Connect the voice channel.
-  _, err := s.ChannelVoiceJoin(config.GuildId, voiceChannelID, false, true)
+  _, err := s.ChannelVoiceJoin(config.GuildId, VoiceChannelID, false, true)
   if err != nil {
     fmt.Println(err)
   } 
@@ -36,7 +38,7 @@ func VoiceMain(s *discordgo.Session) error {
   } 
 
 	// Start play audio 
-  err = Play(s)
+  err = Play(s, VoiceChannelID)
   if err != nil {
     fmt.Println("Error at voice.Play()", err)
     return err
@@ -47,8 +49,7 @@ func VoiceMain(s *discordgo.Session) error {
 
 
 // Play audio
-func Play(s *discordgo.Session) error {
-  voiceChannelID := "937946561802031154"
+func Play(s *discordgo.Session, voiceChannelID string) error {
   // Get the voice connection.
   vc, err := s.ChannelVoiceJoin(config.GuildId, voiceChannelID, false, true)
   if err != nil {

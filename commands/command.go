@@ -38,9 +38,10 @@ var (
           Content: "Received command to connect.",
         },
       })
-
+      
+      option := i.ApplicationCommandData().Options[0]
       // Connect the voice channel.
-      err := voice.VoiceMain(s)
+      err := voice.VoiceMain(s, option)
       if err != nil {
         fmt.Println(err)
       } 

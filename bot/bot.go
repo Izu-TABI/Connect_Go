@@ -76,7 +76,7 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
     _, _ = s.ChannelMessageSend(m.ChannelID, "pong")
   } else if m.Content == "/play" {
     fmt.Println("/play command")
-    voice.Play(s)
+    voice.Play(s, voice.VoiceChannelID)
   }
 
 }
