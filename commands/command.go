@@ -7,9 +7,10 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 )
-var s *discordgo.Session
 
 var (
+  option string
+  s *discordgo.Session
 	integerOptionMinValue          = 1.0
 	dmPermission                   = false
 	defaultMemberPermissions int64 = discordgo.PermissionManageServer
@@ -45,16 +46,13 @@ var (
         },
       })
       
-      option := i.ApplicationCommandData().Options[0]
-      // Connect the voice channel.
-      err := voice.VoiceMain(s, option)
-      if err != nil {
-        fmt.Println(err)
-      } 
+      // channel ID of options
+      option = i.ApplicationCommandData().Options[0].Value.(string)
+      voice.Play(s, option, "コネクト")
     },
 
     "disconnect": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-      vc, err := s.ChannelVoiceJoin(config.GuildId, voice.VoiceChannelID, false, true)
+      vc, err := s.ChannelVoiceJoin(config.GuildId, option, false, true)
       vc.Disconnect()
       if err != nil {
         fmt.Println(err)
