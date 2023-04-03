@@ -4,60 +4,65 @@ import (
 	"Connect2_Go/config"
 	"fmt"
 	"io/ioutil"
-	"time"
 
 	"github.com/bwmarrin/dgvoice"
 	"github.com/bwmarrin/discordgo"
 )
 
 var ChannelID string
-var Playing bool
-
 
 // Play audio
 func Play(s *discordgo.Session, voiceChannelID string, contents string) error {
-  Playing = true
+  
 
-  ChannelID = voiceChannelID
- 
-  // Get the voice connection.
-  vc, err := s.ChannelVoiceJoin(config.GuildId, ChannelID, false, true)
-  if err != nil {
-    fmt.Println(err)
-    return err
-  } 
+	ChannelID = voiceChannelID
+	// Making our bot a user using User function.
+	u, err := s.User("@me")
+	if err != nil {
+		fmt.Println(err.Error())
+		return err
+	}
 
-  // Get mp3 url
-  url, err := voiceAPI(contents)
-  if err != nil {
-    fmt.Println(err)
-    return err
-  }
+	// Storing our id from u to BotId
+	botId := u.ID
+  
 
-  // download mp3 file
-  err = MP3FromURL(url)
-  if err != nil {
-    fmt.Println("Error at voice.MP3FromURL()", err)
-    return err
-  } 
+	// Get the voice connection.
+	vc, err := s.ChannelVoiceJoin(config.GuildId, ChannelID, false, true)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+  s.GuildMemberMute(config.GuildId, botId, false)
+	vc.Speaking(true)
+	
+	defer vc.Speaking(false)
+  defer s.GuildMemberMute(config.GuildId, botId, true)
 
-  // Play
-  fmt.Println("Reading Folder: ", "audio")
-  files, err := ioutil.ReadDir("audio")
-  if err != nil {
-    fmt.Println(err)
-    return err
-  }
-  for _, f := range files {
-    fmt.Println("PlayAudioFile:", f.Name())
+	// Get mp3 url
+	url, err := voiceAPI(contents)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 
-    dgvoice.PlayAudioFile(vc, fmt.Sprintf("%s/%s", "audio", f.Name()), make(chan bool))
-  }
+	// download mp3 file
+	err = MP3FromURL(url)
+	if err != nil {
+		fmt.Println("Error at voice.MP3FromURL()", err)
+		return err
+	}
 
-  time.Sleep(time.Duration(1 * time.Second))
-  Playing = false
+	// Play
+	files, err := ioutil.ReadDir("audio")
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	for _, f := range files {
 
-  return nil
+	  dgvoice.PlayAudioFile(vc, fmt.Sprintf("%s/%s", "audio", f.Name()), make(chan bool))
+    
+	}
+	return nil
 }
-
-

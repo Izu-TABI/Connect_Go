@@ -1,10 +1,7 @@
 package config
 
 import (
-	"fmt"
 	"os"
-
-	"github.com/joho/godotenv"
 )
 
 var (
@@ -14,12 +11,6 @@ var (
 )
 
 func ReadConfig() error {
-  // load an env file
- err := godotenv.Load(".env")
-  if err != nil {
-    fmt.Println(err)
-    return err
-  }
 
   Token = os.Getenv("TOKEN")
   BotPrefix = os.Getenv("BOTPREFIX")

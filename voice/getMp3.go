@@ -22,9 +22,6 @@ func voiceAPI(contents string) (string, error) {
 	if err != nil {
 		fmt.Printf("NewRequest err=%s", err.Error())
 	}
-  
- 
-  fmt.Println(resp.Body)
   var data Data
   err = json.NewDecoder(resp.Body).Decode(&data)
   if err != nil {
@@ -44,14 +41,11 @@ func MP3FromURL(url string) error {
     fmt.Println(err)
 	}
 
-	defer res.Body.Close()
-
 	file, err := os.Create("./audio/audio.mp3")
 	if err != nil {
 		// Handle error
     fmt.Println(err)
 	}
-	defer file.Close()
 
   _, err = io.Copy(file, res.Body)
   if err != nil {
